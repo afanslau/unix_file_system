@@ -9,7 +9,7 @@ rm(name)
 ls() 
 mkdir(name)
 rmdir(name)
-cd
+cd(name)
 cat(name) print file
 append(name,buf) write to end
 '''

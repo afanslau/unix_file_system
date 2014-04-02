@@ -86,8 +86,8 @@ def release_block(blockNum):
 
 
 
-max_block_numbers = 
-layer = init_blockLayer(100)
+max_block_numbers = 100
+layer = init_blockLayer(max_block_numbers)
 device = layer[0]
 freeList = layer[1]
 # print device

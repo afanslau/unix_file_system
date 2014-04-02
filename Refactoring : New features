@@ -1,0 +1,25 @@
+Refactoring / New features
+
+
+1.
+Fix variable names like list, dir, 
+
+2.
+Refactor recursive traversal of path string. Remove unnecessary control-flow and use optimized string functions, etc
+non-discriptive i,r,c  pathname.name_to_inode_number 47-50
+
+
+3.
+Abstract out parsing the file contents of a directory into something python can work with
+	Repeated code in pathname.Lookup and shell.rmdir
+pathname.py 32
+
+
+4.
+Is there a better way to store global vairables?  filename 44
+
+
+
+5.
+Add alias for '.' and '..'
+

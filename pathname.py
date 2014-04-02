@@ -27,7 +27,11 @@ def Lookup(fn,dir):
 	if len(dirStr) == 0:
 		return failure
 	fnDict = {}
+
+	#what does this do?
 	list = ''.join(dirStr).split(',')
+
+
 	for entry in list:
 		pair = entry.split('|')
 		fnDict[pair[0]] = int(pair[1])
@@ -40,33 +44,44 @@ def name_to_inode_number(path,dir=-1,createOnFailure=1):
 	if dir == -1:
 		dir = filename.wd
 	#look for a / in path
-	i = 0
-	r = []
+	i = 0  #index
+	r = [] #
 	c = ''
-	while not (c=='/' or i == len(path)):
-		c = path[i]
-		if not c == '/':
-			r.append(c)
-		i += 1
-	if c=='/' and i == len(path):
+
+	'''
+	Go through each character in the path until you hit a slash
+
+	Refactor: remove while loop and character array
+	'''
+
+	splitPath = path.split('/',1)
+	first = splitPath[0]
+
+
+	# while not (c=='/' or i == len(path)):
+	# 	c = path[i]
+	# 	if not c == '/':
+	# 		r.append(c)
+	# 	i += 1
+	# if c=='/' and i == len(path):
+	if path[-1]=='/':
 		#tried to parse path with format dir/dir/filename/
 		raise Exception('Invalid path syntax')
-	elif c == '/':
+	if len(splitPath)==2:
+		#directory format dir/dir/
 		#check if the directory exists
-		inodeNum = Lookup(''.join(r),dir)
+		inodeNum = Lookup(first,dir)
 		if inodeNum == failure:
 			raise Exception('Directory not found')
 		else:
-			return name_to_inode_number(path[i:],inodeNum)
-	elif i == len(path):
+			#recursive traversal to leaf node
+			return name_to_inode_number(splitPath[1],inodeNum)
+	elif len(splitPath)==1:
 		#Base Case: path is a plain name
 		inodeNum = Lookup(path,dir)
-		if inodeNum == failure:
-			if createOnFailure ==1:
-				#if the file isnt found, create it
-				inodeNum = create(path,dir)
-			else:
-				return failure 
+		if inodeNum == failure and createOnFailure:
+			#if the file isnt found, create it
+			inodeNum = create(path,dir)
 		return inodeNum
 
 
