@@ -79,6 +79,7 @@ def rm(name,rmdir=False):
 	contents = FileNameLayer.read(dir)
 	list = ''.join(contents).split(',')
 	i = 0
+
 	while i < len(list):
 		pair = list[i].split('|')
 		#if the file is in the dir, remove it
@@ -101,15 +102,9 @@ def rmdir(name):
 	dirInodeNum = general_path_to_inode_number(name,createOnFailure=0)
 	if dirInodeNum == failure:
 		raise Exception("Directory not found")
+
 	#parse to dict
-	fnDict = {}
-	contents = FileNameLayer.read(dirInodeNum)
-	list = ''.join(contents).split(',')
-	i = 0
-	while i < len(list):
-		pair = list[i].split('|')
-		fnDict[pair[0]] = int(pair[1])
-		i += 1
+	fnDict = FileNameLayer.parseDirectory(dirInodeNum)
 	#go through all the files in the directory
 	for fn in fnDict:
 		if InodeNumberLayer.inode_number_to_inode(fnDict[fn]).type == FileNameLayer.FileType.directory:
@@ -120,6 +115,7 @@ def rmdir(name):
 			rm(name+'/'+fn)
 	# print 'name:',name
 	rm(name,rmdir=True)
+
 
 if __name__ == '__main__':
 	print 'Test: ls()'

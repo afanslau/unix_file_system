@@ -99,10 +99,15 @@ def read(inodeNum, buf=-1, numBytes=-1, fileStart=0, bufferStart=0):
 	thisBlock.read(buf=buf,numBytes=extraBytes,bufferStart=bufCursor)
 	return buf 
 
-
+def parseDirectory(dirInodeNum):
+	fnDict = {}
+	contents = read(dirInodeNum)
+	if len(contents)==0:
+		return {}
+	dirContents = ''.join(contents).split(',')
+	return {k:int(v) for k, v in [l.split('|') for l in dirContents]}
 
 # Is this a good way to store global variables?
-
 rootDirectory = get_free_inode()
 inode_number_to_inode(rootDirectory).type = FileType.directory
 wd = rootDirectory

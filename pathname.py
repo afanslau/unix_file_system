@@ -13,75 +13,49 @@ from FileLayer import *
 from inode_number import *
 import filename
 
-def Lookup(fn,dir):
+def Lookup(fn,dirInodeNum):
 	#fn is a plain name
 	#dir is an inode number
 	#recursive lookup of the fn in the dir file
 	#returns the inode number of the file
 
 	#check that dir is of type FileType.directory
-	if not inode_number_to_inode(dir).type == FileType.directory:
+	if not inode_number_to_inode(dirInodeNum).type == FileType.directory:
 		raise Exception("Tried to parse a regular_file as a directory")
-	#read in the dir file and parse into a dict
-	dirStr = filename.read(dir)
-	if len(dirStr) == 0:
-		return failure
-	fnDict = {}
 
-	#what does this do?
-	list = ''.join(dirStr).split(',')
-
-
-	for entry in list:
-		pair = entry.split('|')
-		fnDict[pair[0]] = int(pair[1])
+	
+	fnDict = filename.parseDirectory(dirInodeNum)
 	if fn in fnDict:
 		return fnDict[fn]
 	else:
 		return failure
 
-def name_to_inode_number(path,dir=-1,createOnFailure=1):
-	if dir == -1:
-		dir = filename.wd
-	#look for a / in path
-	i = 0  #index
-	r = [] #
-	c = ''
-
-	'''
-	Go through each character in the path until you hit a slash
-
-	Refactor: remove while loop and character array
-	'''
+def name_to_inode_number(path,currDir=-1,createOnFailure=1):
+	# Default value
+	if currDir == -1:
+		currDir = filename.wd
 
 	splitPath = path.split('/',1)
-	first = splitPath[0]
+	pathLen = len(splitPath)
+	firstName = splitPath[0]
 
-
-	# while not (c=='/' or i == len(path)):
-	# 	c = path[i]
-	# 	if not c == '/':
-	# 		r.append(c)
-	# 	i += 1
-	# if c=='/' and i == len(path):
 	if path[-1]=='/':
 		#tried to parse path with format dir/dir/filename/
 		raise Exception('Invalid path syntax')
-	if len(splitPath)==2:
-		#directory format dir/dir/
-		#check if the directory exists
-		inodeNum = Lookup(first,dir)
+	#check if the directory exists
+	inodeNum = Lookup(firstName,currDir)
+	if pathLen==2:
+		#valid path format dir/dir/filename
 		if inodeNum == failure:
-			raise Exception('Directory not found')
+			raise Exception("Directory '"+firstName+"' not found")
 		else:
-			#recursive traversal to leaf node
+			#recursive traversal to file
 			return name_to_inode_number(splitPath[1],inodeNum)
-	elif len(splitPath)==1:
+	elif pathLen==1:
 		#Base Case: path is a plain name
-		inodeNum = Lookup(path,dir)
 		if inodeNum == failure and createOnFailure:
 			#if the file isnt found, create it
-			inodeNum = create(path,dir)
+			inodeNum = create(firstName,currDir)
 		return inodeNum
 
 
